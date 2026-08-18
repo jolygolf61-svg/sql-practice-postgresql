@@ -16,9 +16,6 @@ SELECT MIN(price) AS min_price, MAX(price) AS max_price
 FROM order_items;
 
 -- 4. Количество товаров по категориям (с англ. названием)
--- ВАЖНО: группировка по "сырому" product_category_name, а не по переводу —
--- иначе 2 категории без перевода схлопываются в одну NULL-группу
--- вместе с 610 товарами без категории вовсе.
 SELECT
     p.product_category_name,
     pcnt.product_category_name_english,
