@@ -19,15 +19,12 @@ FROM order_items oi
 JOIN sellers s ON s.seller_id = oi.seller_id;
 
 -- 4. Заказы, на которые не оставлен отзыв
--- ВАЖНО: проверяем ключ соединения (t.order_id), а не текстовое поле
--- комментария — оно бывает NULL и у РЕАЛЬНО существующих отзывов.
 SELECT o.order_id
 FROM orders o
 LEFT JOIN order_reviews t ON o.order_id = t.order_id
 WHERE t.order_id IS NULL;
 
 -- 5. Заказы без единой записи об оплате
--- Найден 1 реальный заказ (delivered) без оплаты — аномалия в данных.
 SELECT o.order_id, o.order_status
 FROM orders o
 LEFT JOIN order_payments op ON op.order_id = o.order_id
@@ -46,7 +43,6 @@ LEFT JOIN order_items oi ON oi.seller_id = s.seller_id
 WHERE oi.seller_id IS NULL;
 
 -- 8. FULL JOIN orders + order_payments: строки-"сироты" с любой стороны
--- (в данных таких строк не найдено — целостность полная)
 SELECT *
 FROM orders o
 FULL JOIN order_payments op ON op.order_id = o.order_id
@@ -61,7 +57,7 @@ FROM customers c1
 JOIN orders o1 ON o1.customer_id = c1.customer_id
 JOIN customers c2 ON c2.customer_unique_id = c1.customer_unique_id
 JOIN orders o2 ON o2.customer_id = c2.customer_id
-WHERE o1.order_id < o2.order_id   -- убираем дубли пар и пары заказа с самим собой
+WHERE o1.order_id < o2.order_id   
 ORDER BY c1.customer_unique_id;
 
 -- 10. Клиент + заказ + товар + цена (4-табличный JOIN)
@@ -90,8 +86,6 @@ LEFT JOIN order_reviews r ON r.order_id = oi.order_id
 WHERE r.review_pk IS NULL;
 
 -- 13. Средний рейтинг по каждому продавцу (с NULL у продавцов без отзывов)
--- ВАЖНО: цепочка должна начинаться с sellers, иначе продавцы без единого
--- отзыва потеряются из результата (LEFT JOIN работает только "вперёд" от FROM).
 SELECT s.seller_id, ROUND(AVG(t.review_score), 2) AS avg_score
 FROM sellers s
 LEFT JOIN order_items oi ON oi.seller_id = s.seller_id
