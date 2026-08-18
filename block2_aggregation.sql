@@ -54,7 +54,6 @@ GROUP BY product_category_name
 HAVING COUNT(product_id) > 500;
 
 -- 9. Количество заказов у каждого реального клиента
--- ВАЖНО: customer_id уникален НА ЗАКАЗ, реальный человек — customer_unique_id
 SELECT customer_unique_id, COUNT(order_id) AS orders_count
 FROM customers c
 LEFT JOIN orders o ON o.customer_id = c.customer_id
@@ -70,8 +69,6 @@ HAVING COUNT(order_id) > 1
 ORDER BY orders_count DESC;
 
 -- 11. Средний рейтинг по каждому товару
--- Примечание: отзыв в Olist пишется на ЗАКАЗ целиком, а не на конкретный товар,
--- поэтому при многотоварных заказах один отзыв влияет на несколько товаров сразу.
 SELECT
     oi.product_id,
     ROUND(AVG(t.review_score), 2) AS avg_score
@@ -90,8 +87,6 @@ HAVING ROUND(AVG(t.review_score), 2) < 3
 ORDER BY avg_score DESC;
 
 -- 13. Количество заказов по каждому способу оплаты
--- ВАЖНО: COUNT(DISTINCT order_id), а не COUNT(order_id) — один заказ может
--- иметь несколько строк оплаты (например, ваучер + карта), иначе переучёт.
 SELECT
     payment_type,
     COUNT(DISTINCT order_id) AS orders_count
@@ -100,7 +95,6 @@ GROUP BY payment_type
 ORDER BY orders_count DESC;
 
 -- 14. Штаты с суммарной выручкой клиентов выше 500 000
--- ВАЖНО: выручка = SUM(price), а не SUM(freight_value) (это стоимость доставки, не продажи)
 SELECT
     customer_state,
     SUM(oi.price) AS total_revenue
