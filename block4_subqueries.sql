@@ -8,12 +8,12 @@ SELECT oi.product_id, oi.price
 FROM order_items oi
 WHERE oi.price > (SELECT AVG(price) FROM order_items);
 
--- 2. Продавцы без единой продажи (через NOT IN)
+-- 2. Продавцы без единой продажи 
 SELECT s.seller_id
 FROM sellers s
 WHERE s.seller_id NOT IN (SELECT seller_id FROM order_items);
 
--- 3. Товар(ы) с максимальной ценой продажи (без ORDER BY + LIMIT)
+-- 3. Товар(ы) с максимальной ценой продажи 
 SELECT oi.product_id, oi.order_id, oi.price
 FROM order_items oi
 WHERE oi.price = (SELECT MAX(price) FROM order_items);
@@ -76,10 +76,10 @@ WHERE oi.price > (
     SELECT AVG(oi2.price)
     FROM order_items oi2
     JOIN products p2 ON p2.product_id = oi2.product_id
-    WHERE p2.product_category_name = p.product_category_name   -- условие корреляции
+    WHERE p2.product_category_name = p.product_category_name   
 );
 
--- 10. Второй по величине заказ по суммарной стоимости (без оконных функций)
+-- 10. Второй по величине заказ по суммарной стоимости
 SELECT order_id, order_total
 FROM (
     SELECT order_id, SUM(price) AS order_total
@@ -95,7 +95,7 @@ WHERE order_total = (
     )
 );
 
--- 11. Клиенты с хотя бы одним отменённым заказом (EXISTS)
+-- 11. Клиенты с хотя бы одним отменённым заказом 
 SELECT c.customer_unique_id
 FROM customers c
 WHERE EXISTS (
@@ -103,7 +103,7 @@ WHERE EXISTS (
     WHERE o.customer_id = c.customer_id AND o.order_status = 'canceled'
 );
 
--- 12. Товары, которые не входят ни в один заказ (NOT EXISTS)
+-- 12. Товары, которые не входят ни в один заказ 
 SELECT p.product_id
 FROM products p
 WHERE NOT EXISTS (
